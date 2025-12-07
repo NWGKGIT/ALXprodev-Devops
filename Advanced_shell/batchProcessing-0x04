@@ -1,0 +1,19 @@
+#!/bin/bash
+pokemon_list=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
+output_dir="pokemon_data_parallel"
+
+mkdir -p "$output_dir"
+echo "Starting parallel fetch..."
+
+for pokemon in "${pokemon_list[@]}"; do
+    (
+        if curl -s -f -o "$output_dir/$pokemon.json" "https://pokeapi.co/api/v2/pokemon/$pokemon"; then
+            echo "Finished $pokemon ✅"
+        else
+            echo "Failed $pokemon ❌"
+        fi
+    ) &
+done
+
+wait
+echo "All parallel jobs completed."

@@ -1,0 +1,29 @@
+#!/bin/bash
+pokemon_list=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
+output_dir="pokemon_data"
+max_retries=3
+
+mkdir -p "$output_dir"
+
+for pokemon in "${pokemon_list[@]}"; do
+    echo "Fetching data for $pokemon..."
+    retry_count=0
+    success=false
+
+    while [ $retry_count -lt $max_retries ]; do
+        if curl -s -f -o "$output_dir/$pokemon.json" "https://pokeapi.co/api/v2/pokemon/$pokemon"; then
+            echo "Saved data to $output_dir/$pokemon.json ✅"
+            success=true
+            break
+        else
+            ((retry_count++))
+            echo "Attempt $retry_count failed. Retrying..."
+            sleep 2
+        fi
+    done
+
+    if [ "$success" = false ]; then
+        echo "Error: Failed to fetch data for $pokemon" >> errors.txt
+    fi
+    sleep 1
+done
